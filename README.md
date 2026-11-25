@@ -380,7 +380,3 @@ unless `OPEN_DECISIONS` explicitly says otherwise. NoteChat's clinical notes
 real confidential company or patient data — see `docs/PROJECT_SPEC.md` §7a
 item 3.
 
-## Non-goals
-
-No web UI, no API server, no Docker deployment, no RAG, unless added by
-explicit user decision. See `docs/PROJECT_SPEC.md` §8.
