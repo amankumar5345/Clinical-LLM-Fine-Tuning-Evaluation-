@@ -1,0 +1,110 @@
+{
+  "arm": "finetuned",
+  "model_name": "unsloth/Qwen2.5-3B-Instruct-bnb-4bit",
+  "adapter_path": "artifacts/adapters/unsloth__Qwen2.5-3B-Instruct-bnb-4bit/final_adapter",
+  "baseline": null,
+  "n_records": 2,
+  "decoding": {
+    "do_sample": false,
+    "greedy": true
+  },
+  "sample_seed": 42,
+  "aggregate": {
+    "rouge1": {
+      "point_estimate": 0.65,
+      "ci_low": 0.60,
+      "ci_high": 0.70,
+      "n": 2,
+      "n_resamples": 100
+    },
+    "rouge2": {
+      "point_estimate": 0.40,
+      "ci_low": 0.35,
+      "ci_high": 0.45,
+      "n": 2,
+      "n_resamples": 100
+    },
+    "rougeL": {
+      "point_estimate": 0.45,
+      "ci_low": 0.40,
+      "ci_high": 0.50,
+      "n": 2,
+      "n_resamples": 100
+    },
+    "bertscore_f1": {
+      "point_estimate": 0.91,
+      "ci_low": 0.90,
+      "ci_high": 0.92,
+      "n": 2,
+      "n_resamples": 100
+    },
+    "numeric_grounding_recall": {
+      "point_estimate": 0.75,
+      "ci_low": 0.50,
+      "ci_high": 1.00,
+      "n": 2,
+      "n_resamples": 100
+    },
+    "numeric_precision": {
+      "point_estimate": 1.00,
+      "ci_low": 1.00,
+      "ci_high": 1.00,
+      "n": 2,
+      "n_resamples": 100
+    },
+    "fabricated_number_rate": {
+      "point_estimate": 0.00,
+      "ci_low": 0.00,
+      "ci_high": 0.00,
+      "n": 2,
+      "n_resamples": 100
+    },
+    "turn_format_valid_rate": 1.0,
+    "tokens_per_second": 15.5,
+    "records_per_second": 0.04,
+    "peak_vram_gb": 2.4,
+    "wall_clock_s": 50.0
+  },
+  "records": [
+    {
+      "note_id": "note-fixture-001",
+      "generated": "Doctor: How are you feeling?\nPatient: I have had a fever of 39 C for 2 days.",
+      "reference": "Doctor: Hello, what brings you in?\nPatient: A fever of 39 C for 2 days.",
+      "rouge1": 0.70,
+      "rouge2": 0.45,
+      "rougeL": 0.50,
+      "bertscore_f1": 0.92,
+      "starts_with_turn_marker": true,
+      "num_turns": 2,
+      "has_doctor_turn": true,
+      "has_patient_turn": true,
+      "numeric_grounding_recall": 1.0,
+      "numeric_precision": 1.0,
+      "fabricated_number_rate": 0.0,
+      "n_note_numbers": 2,
+      "n_generated_numbers": 2,
+      "latency_s": 25.0,
+      "gen_tokens": 20
+    },
+    {
+      "note_id": "note-fixture-002",
+      "generated": "Doctor: Your blood pressure is 120/80.\nPatient: Thank you, doctor.",
+      "reference": "Doctor: Let's check your blood pressure, it is 120/80.\nPatient: Okay.",
+      "rouge1": 0.60,
+      "rouge2": 0.35,
+      "rougeL": 0.40,
+      "bertscore_f1": 0.90,
+      "starts_with_turn_marker": true,
+      "num_turns": 2,
+      "has_doctor_turn": true,
+      "has_patient_turn": true,
+      "numeric_grounding_recall": 0.5,
+      "numeric_precision": 1.0,
+      "fabricated_number_rate": 0.0,
+      "n_note_numbers": 4,
+      "n_generated_numbers": 2,
+      "latency_s": 25.0,
+      "gen_tokens": 18
+    }
+  ]
+}

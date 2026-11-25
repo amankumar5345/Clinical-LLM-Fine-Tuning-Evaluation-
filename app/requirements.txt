@@ -1,0 +1,9 @@
+# Lightweight Streamlit deployment requirements (modes a: Cached Examples and c: Remote Endpoint).
+# Intentionally excludes torch, bitsandbytes, peft, unsloth, and bert-score.
+streamlit==1.67.0
+pydantic==2.14.4
+plotly==7.1.0
+pandas==3.1.1
+altair==6.3.0
+pyyaml==6.0.3
+numpy==2.4.6

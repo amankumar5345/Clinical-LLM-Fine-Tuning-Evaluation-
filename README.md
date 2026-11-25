@@ -350,6 +350,22 @@ python scripts/voice_to_note.py --mic                    # speak a note instead 
 No audio or transcript is sent anywhere — transcription runs on-device, same
 as everything else in this repo (`docs/PROJECT_SPEC.md` §1.1).
 
+## Streamlit evaluation app
+
+An interactive multipage dashboard lives under `app/` (`app/app.py` + `app/pages/`).
+All metrics are loaded directly from `artifacts/eval/` and `configs/` (or shown as `N/A` if absent).
+
+```bash
+# Install lightweight UI dependencies (no torch/CUDA needed for Cached Examples or Remote Endpoint)
+pip install -r app/requirements.txt
+
+# Launch the app locally
+streamlit run app/app.py
+```
+
+For local QLoRA inference in `pages/4_Playground.py` (mode b), run on a CUDA machine with
+`uv sync --extra gpu` and the trained adapter under `artifacts/adapters/`.
+
 ## Data governance
 
 Nothing under `data/` is ever committed. A pre-commit hook
