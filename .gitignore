@@ -1,0 +1,57 @@
+# data & derived artifacts — never commit anything that could contain sensitive company data
+#
+# Leading slashes matter: an unanchored `data/` matches a directory named
+# `data` at ANY depth, which silently excluded `src/data/` — the entire
+# Phase 1 pipeline — from every commit until CI caught the resulting
+# ModuleNotFoundError. Anchor these to the repo root so they only ignore the
+# top-level directories they are meant to.
+/data/
+*.parquet
+*.csv
+*.jsonl
+/models/
+/outputs/
+annotation/*.parquet
+annotation/gold*/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+uv.lock.tmp
+
+# env / secrets
+.env
+*.env.local
+
+# generated test audio (voice_to_note.py smoke-test fixtures) — same
+# rationale as /data/: bulky generated files, not source
+/test_audio/
+
+# training artifacts — model weights/checkpoints stay local (too large for
+# git, and *.safetensors/*.pt below cover the binary weights specifically);
+# artifacts/eval/*.json results are small and are the actual evidence this
+# project produces, so they're deliberately NOT excluded here.
+wandb/
+*.ckpt
+*.safetensors
+artifacts/adapters/
+unsloth_compiled_cache/
+
+# OS
+.DS_Store
+
+# editor
+.vscode/
+
+# personal Claude Code session transcripts — not a project deliverable
+claude-chat/
+
+# personal documents that happen to sit in this working dir — this repo is
+# public, so keep CVs/cover letters out of it by default
+CV.tex
+*.pdf

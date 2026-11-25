@@ -1,0 +1,120 @@
+[project]
+name = "notechat-qlora-eval"
+version = "0.1.0"
+description = "On-prem QLoRA vs. a larger baseline model, fine-tuned and evaluated on company data"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "transformers>=4.46",
+    "datasets>=3.0",
+    "polars>=1.10",
+    "duckdb>=1.1",
+    "scikit-learn>=1.5",
+    "numpy>=1.26,<2.0",
+    "scipy>=1.14",
+    "matplotlib>=3.9",
+    "pydantic>=2.9",
+    "pyyaml>=6.0",
+    # rouge-score is pure-Python (nltk/absl) and stays in the base group so
+    # the metric unit tests run on any machine. bert-score is NOT here: it
+    # depends on torch, which would drag the whole CUDA stack into a plain
+    # `uv sync` and into CI. It lives in the `gpu` extra and is imported
+    # lazily by src/eval/metrics.py.
+    "rouge-score>=0.1.2",
+]
+
+# GPU/CUDA-locked training stack. Install on an NVIDIA machine (Linux or
+# Windows) with `uv sync --extra gpu`. torch, bitsandbytes, unsloth, peft,
+# and accelerate are kept out of the default group so a plain `uv sync`
+# stays installable on a non-CUDA dev machine.
+#
+# torch is capped <2.12 because unsloth requires it; torchvision is listed
+# explicitly (rather than left transitive via unsloth) so the CUDA index
+# source below applies to it and its torch==2.11.0 pin stays satisfiable.
+[project.optional-dependencies]
+gpu = [
+    "torch>=2.4,<2.12",
+    "torchvision",
+    "bitsandbytes>=0.43",
+    "unsloth",
+    "trl>=0.11",
+    "peft>=0.13",
+    "accelerate>=1.0",
+    # Needs torch, so it belongs with the CUDA stack rather than in the base
+    # group — see the note there.
+    "bert-score>=0.3.13",
+]
+# Pinned exactly (not >=) because abetlen's prebuilt CUDA wheel index only
+# publishes 0.3.4 for cp311/win_amd64 at cu124 — plain `pip install
+# llama-cpp-python` builds a CPU-only wheel from source on Windows with no
+# error, same silent-fallback trap as torch (see finetune_kernel_setup_status.md).
+llm-large = [
+    "llama-cpp-python==0.3.4",
+]
+# Voice input for scripts/voice_to_note.py. Kept out of the base group like
+# `gpu` above: faster-whisper pulls in ctranslate2/onnxruntime/av, and
+# sounddevice needs a PortAudio binding, neither of which the text-only
+# pipeline (build_dataset/run_eval/try_model) needs. Transcription runs
+# entirely on-device (docs/PROJECT_SPEC.md §1.1) — no audio is ever sent to
+# an external API.
+voice = [
+    "faster-whisper>=1.0",
+    "sounddevice>=0.5",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pre-commit>=4.0",
+    "ipykernel>=6.29",
+    # Pinned to the same version the pre-commit hook uses, so a local
+    # `ruff check` and a hook run can never disagree about what passes.
+    "ruff==0.9.4",
+]
+
+# PyPI's torch wheels are CPU-only on Windows, which silently yields
+# `torch.cuda.is_available() == False`. Pull torch/torchvision from
+# PyTorch's CUDA 12.8 index instead. cu128 is the newest CUDA line that
+# has a torch 2.11.0 build for every platform we target; bitsandbytes
+# ships a matching libbitsandbytes_cuda128 kernel. Left as `explicit`
+# so nothing else is resolved from that index.
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+# cu124 build works against the installed CUDA 12.8 runtime (NVIDIA's CUDA
+# minor-version compatibility covers this) — abetlen's index has no cu128
+# folder, and this is the newest version published for cp311/win_amd64.
+[[tool.uv.index]]
+name = "llama-cpp-python-cu124"
+url = "https://abetlen.github.io/llama-cpp-python/whl/cu124"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu128" }
+torchvision = { index = "pytorch-cu128" }
+llama-cpp-python = { index = "llama-cpp-python-cu124" }
+
+# Line length 120, not the default 88: this codebase deliberately writes long
+# explanatory error messages and metric expressions on one line rather than
+# wrapping them into something harder to read. Rules are the default set plus
+# import sorting (I), bugbear (B), comprehensions (C4) and pyupgrade (UP).
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+# notebooks/finetune.ipynb is excluded on purpose: it is the *record* of the
+# training run that produced the committed adapter, not source under active
+# development. `ruff --fix` rewrote it (stripped an unused import, inserted
+# nbformat cell ids), which quietly makes the committed file no longer the
+# file that was executed. Evidence does not get reformatted.
+exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "C4", "UP", "W"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
